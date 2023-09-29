@@ -1,0 +1,4 @@
+name: Celebrity
+version: '${version}'
+main: com.githug.rok.celebrity.Main
+api-version: '1.20'
