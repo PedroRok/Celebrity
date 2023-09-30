@@ -8,7 +8,6 @@ import java.util.*;
 
 public class CelebrityTask implements Runnable {
 
-    public static final String METADATA_KEY = "near_celebrity";
     private final ArrayList<UUID> celebrities = new ArrayList<>();
     //                  player, celebrity
     private final Map<UUID, UUID> invisible = new HashMap<>();
@@ -19,6 +18,12 @@ public class CelebrityTask implements Runnable {
     private static final double MIN_TPS = 18.0;
     private static final double MIN_TICKS = 2.0;
 
+    private static final boolean USE_KNOCKBACK = true;
+    private static final double KNOCKBACK_DISTANCE = 0.5; // TODO: Remove final
+
+    public static final boolean USE_DEBUG = true;
+
+
     // Variable
     private int ticks = 0;
     private static final int MAX_TICKS = (int) (MIN_TPS * MIN_TICKS);
@@ -28,6 +33,7 @@ public class CelebrityTask implements Runnable {
         Main.logger().debug("CelebrityTask created");
     }
 
+    List<UUID> toRemove = new ArrayList<>();
     @Override
     public void run() {
         int calcTicks = 1;
@@ -37,7 +43,7 @@ public class CelebrityTask implements Runnable {
         }
         if (ticks > MIN_TICKS * calcTicks) {
             ticks = 0;
-            List<UUID> toRemove = new ArrayList<>();
+
             celebrities.forEach(uuid -> {
                 Player player = Bukkit.getPlayer(uuid);
                 player.getLocation().getNearbyLivingEntities(DISTANCE - 2.2,
@@ -45,18 +51,23 @@ public class CelebrityTask implements Runnable {
                                 && i != player
                                 && !invisible.containsKey(i.getUniqueId())
                 ).forEach(entity -> {
-                    Main.logger().debug("Distance Nearby" + player.getLocation().distance(entity.getLocation()));
+                    if (USE_KNOCKBACK) {
+                        CelebrityManager.knockback(((Player) entity), player, KNOCKBACK_DISTANCE);
+                        return;
+                    }
                     invisible.put(entity.getUniqueId(), player.getUniqueId());
                     player.hidePlayer(Main.instance(), ((Player) entity));
                 });
             });
+            if (USE_KNOCKBACK) {
+                ticks++;
+                return;
+            }
 
             for (Map.Entry<UUID, UUID> entry : invisible.entrySet()) {
                 Player player = Bukkit.getPlayer(entry.getKey());
                 Player entity = Bukkit.getPlayer(entry.getValue());
                 if (entity.getLocation().distance(player.getLocation()) > DISTANCE) {
-                    Main.logger().debug("Distance Removing" + player.getLocation().distance(entity.getLocation()));
-                    Main.logger().debug("Unglowing entity: " + entity);
                     entity.showPlayer(Main.instance(), player);
                     toRemove.add(entry.getKey());
                 }

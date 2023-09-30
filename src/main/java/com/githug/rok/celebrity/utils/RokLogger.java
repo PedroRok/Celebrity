@@ -1,5 +1,7 @@
 package com.githug.rok.celebrity.utils;
 
+import com.githug.rok.celebrity.CelebrityTask;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +19,7 @@ public class RokLogger implements PluginLogger {
 
     @Override
     public void debug(String s) {
-        // TODO: Add debug mode
+        if (!CelebrityTask.USE_DEBUG) return; // TODO: Remove when config is done
         this.logger.info("[DEBUG] " + s);
     }
 
