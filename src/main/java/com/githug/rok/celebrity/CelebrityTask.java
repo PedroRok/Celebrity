@@ -8,32 +8,25 @@ import java.util.*;
 
 public class CelebrityTask implements Runnable {
 
-    private final ArrayList<UUID> celebrities = new ArrayList<>();
-    //                  player, celebrity
-    private final Map<UUID, UUID> invisible = new HashMap<>();
-
-
-    // CONFIGURABLE TODO: Change Later
+    // TODO: Make config system !!!
     private static final int DISTANCE = 6;
     private static final double MIN_TPS = 18.0;
     private static final double MIN_TICKS = 2.0;
-
     private static final boolean USE_KNOCKBACK = true;
     private static final double KNOCKBACK_DISTANCE = 0.5; // TODO: Remove final
-
     public static final boolean USE_DEBUG = true;
 
-
+    private final ArrayList<UUID> celebrities = new ArrayList<>();
+    private final Map<UUID, UUID> invisible = new HashMap<>(); // player - celebrity
+    List<UUID> toRemove = new ArrayList<>();
     // Variable
     private int ticks = 0;
     private static final int MAX_TICKS = (int) (MIN_TPS * MIN_TICKS);
-
 
     public CelebrityTask() {
         Main.logger().debug("CelebrityTask created");
     }
 
-    List<UUID> toRemove = new ArrayList<>();
     @Override
     public void run() {
         int calcTicks = 1;
